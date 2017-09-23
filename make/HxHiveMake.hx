@@ -7,7 +7,7 @@ import hxmake.haxelib.HaxelibPlugin;
 
 using hxmake.haxelib.HaxelibPlugin;
 
-class HxFirefliesMake extends hxmake.Module {
+class HxHiveMake extends hxmake.Module {
 	function new() {
 		config.classPath = ["src"];
 		config.testPath = ["test"];
