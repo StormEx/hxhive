@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>pseditor</title>
+
+    <link rel="icon" href="icon.png">
+
+    <script src="libs\jquery\dist\jquery.min.js"></script>
+    <script src="libs\jquery-ui\jquery-ui.js"></script>
+
+    <link rel="stylesheet" href="libs\bootstrap\dist\css\bootstrap.min.css">
+    <script src="libs\bootstrap\dist\js\bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="libs/angular/angular-csp.css">
+    <script src="libs/angular/angular.min.js"></script>
+
+    <script type="text/javascript" src="libs/angular-tree-control/angular-tree-control.js"></script>
+    <link rel="stylesheet" type="text/css" href="libs/angular-tree-control/css/tree-control.css">
+
+    <script src="hxhive.js"></script>
+    <link rel="stylesheet" href="css/hxhive.css">
+</head>
+<body ng-app="pseditor" ng-controller="PsEditorController">
+<div id="toolbar" class="btn-toolbar tson-toolbar" role="toolbar">
+    <div class="content-toolbar">
+        <button class="btn btn-xs btn-info" title="New particles system" ng-click="newPsSystem()">
+            <span class="glyphicon glyphicon glyphicon-file" aria-hidden="true"></span>
+        </button>
+        <button class="btn btn-xs btn-warning" title="Open particle system" ng-click="loadPsSystem()">
+            <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>
+        </button>
+        <button class="btn btn-xs btn-success" title="Save particle system" ng-click="savePsSystem()">
+            <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+        </button>
+    </div>
+</div>
+<div class="content-column-holder resizable-column">
+    <div id="tsonbody" class="tsonbody">
+        <div class="content-column-scroll-region">
+            <div ng-if="!psData.isLoaded()">
+                Loading...
+            </div>
+            <div class="input-group input-group-sm" ng-if="psData.isLoaded()">
+                <treecontrol
+                        id="tsontree"
+                        class="tree-classic"
+                        tree-model="psData.treeData"
+                        options="treeOptions"
+                        on-selection="psData.selectNode(node, selected)"
+                        selected-node="selectedNode"
+                >
+                    {{node.title}}
+                    <span ng-if="node.description.length > 0">: </span><span class="tree-node-label-muted">{{node.description}}</span>
+                    <button type="button" class="btn btn-xs btn-default tson-tree-node-action" ng-click="node.addSystem()" ng-if="node.isSystem()"
+                            title="Add particle system" data-placement="bottom">
+                        <span class="glyphicon glyphicon-asterisk"></span>
+                    </button>
+                    <button type="button" class="btn btn-xs btn-default tson-tree-node-action" ng-click="node.addEmitter()" ng-if="node.isSystem()"
+                            title="Add particle emitter" data-placement="bottom">
+                        <span class="glyphicon glyphicon-plus"></span>
+                    </button>
+                    <button type="button" class="btn btn-xs btn-default tson-tree-node-action" ng-click="psData.deleteNode(node)"
+                            title="Delete node" data-placement="bottom">
+                        <span class="glyphicon glyphicon-remove"></span>
+                    </button>
+                </treecontrol>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="content-column-holder resizable-column">
+    <div id="psview" class="psview" ng-if="true">
+        <canvas id="pscanvas" class="pscanvas" width="600px" height="600px"></canvas>
+    </div>
+</div>
+<div class="content-column-holder resizable-column">
+    <div id="tsonproperty" class="tsonproperty" ng-if="true">
+        <span>properties should be here</span>
+        <div class="panel panel-success tson-property-group" ng-repeat="grp in psData.getGroups()" ng-if="grp.isEmpty() == false">
+            <div class="panel-heading tson-property-group-header">
+                {{grp.name}} <span class="tree-node-label-muted">{{grp.getDescription()}}</span>
+            </div>
+            <div class="panel-body tson-property-group-body">
+                <div class="input-group input-group-sm tson-property" ng-repeat="prop in grp.properties">
+                    <div class="input-group tson-property" ng-if="prop.dataType == 'string'">
+                        <span class="input-group-addon tson-property-label">{{prop.name}}</span>
+                        <input type="text" class="form-control"
+                               ng-readonly="prop.readOnly"
+                               ng-model="prop.info"
+                               ng-change="prop.update()"
+                        >
+                    </div>
+                    <div class="input-group tson-property" ng-if="prop.dataType == 'number'">
+                        <span class="input-group-addon tson-property-label">{{prop.name}}</span>
+                        <input type="number" class="form-control"
+                               ng-readonly="prop.readOnly"
+                               ng-model="prop.number"
+                               ng-change="prop.update()"
+                        >
+                    </div>
+                    <div class="input-group tson-property" ng-if="prop.dataType == 'binary'">
+                        <span class="input-group-addon tson-property-label">{{prop.name}}</span>
+                        <input type="text" class="form-control"
+                               ng-readonly="true"
+                               ng-model="prop.info"
+                               ng-change="prop.update()"
+                        >
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default" ng-click="prop.loadFile()">
+                                ...
+                            </button>
+                        </div>
+                    </div>
+                    <div class="input-group tson-property" ng-if="prop.dataType == 'options'">
+                        <span class="input-group-addon tson-property-label">{{prop.name}}</span>
+                        <span class="input-group-addon tson-property">{{prop.info}}</span>
+                        <div class="input-group-btn property-group" ng-hide="prop.readOnly">
+                            <button type="button"
+                                    class="btn btn-default dropdown-toggle tson-property"
+                                    ng-disabled="prop.readOnly"
+                                    data-toggle="dropdown"
+                                    aria-haspopup="true"
+                                    aria-expanded="false">
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu  dropdown-menu-right">
+                                <li ng-repeat="option in prop.options" ng-click="prop.changeOption(option)">
+                                    <a href="#">{{option}}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
