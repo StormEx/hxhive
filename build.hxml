@@ -1,0 +1,31 @@
+## JavaScript node.js
+-main Main
+
+-D hxnodejs
+-D nodejs
+
+-lib hxnodejs
+-lib angular.haxe
+-lib hxdispose
+-lib hxfireflies
+
+-cp src
+
+-debug
+
+-js build/hxhive/nodejs/hxhive.js
+
+--next
+
+## JavaScript
+-main Main
+
+-lib angular.haxe
+-lib hxdispose
+-lib hxfireflies
+
+-cp src
+
+-debug
+
+-js build/hxhive/js/hxhive.js
