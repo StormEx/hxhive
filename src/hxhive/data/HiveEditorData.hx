@@ -5,10 +5,10 @@ import hxdispose.Dispose;
 
 class HiveEditorData {
 	public var treeData:Array<HiveNode> = [];
+	public var selectedNode:HiveNode = null;
 
 	var _changedCallback:Void->Void = null;
 
-	var _selectedNode:HiveNode = null;
 	var _isLoaded:Bool = true;
 
 	public function new(changed:Void->Void) {
@@ -25,8 +25,8 @@ class HiveEditorData {
 	}
 
 	public function selectNode(node:HiveNode, selected:Bool) {
-		if(_selectedNode != node) {
-			_selectedNode = node;
+		if(selectedNode != node) {
+			selectedNode = node;
 			changed();
 		}
 	}

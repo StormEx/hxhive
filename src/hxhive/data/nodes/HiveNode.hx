@@ -1,5 +1,6 @@
 package hxhive.data.nodes;
 
+import hxfireflies.emitter.IEmitter;
 import hxdispose.IDisposable;
 
 class HiveNode implements IDisposable {
@@ -7,6 +8,7 @@ class HiveNode implements IDisposable {
     public var id:Float;
     public var title:String = "empty node";
     public var description:String = "empty description";
+    public var emitter:IEmitter = null;
 
     public var parent:HiveNode = null;
     public var children:Array<HiveNode> = [];
