@@ -1,5 +1,9 @@
 package hxhive.data.nodes;
 
+import hxfireflies.animators.AnimatorOut;
+import hxfireflies.animators.AnimatorIn;
+import hxfireflies.animators.IAnimator;
+import hxfireflies.forces.ForceGravity;
 import hxdispose.Dispose;
 import hxfireflies.animators.AnimatorLinear;
 import hxfireflies.particle.IParticleView;
@@ -33,28 +37,32 @@ class HiveEmitterNode extends HiveNode {
         emitterData.lifetimeDelta = (Math.random() * 3) * 1000;
 
         emitterData.alphaFrom = Math.random() * 1;
-        emitterData.alphaFromDelta = Math.random() * (Math.min(1 - emitterData.alphaFrom, emitterData.alphaFrom));
-        valf = emitterData.alphaFrom + emitterData.alphaFromDelta;
-        if(Math.random() > 0.5) {
-            emitterData.alphaTo = Math.random() * (1 - valf) + valf;
+        if(emitterData.alphaFrom >= 0.5) {
+            emitterData.alphaFromDelta = (1 - emitterData.alphaFrom) * Math.random();
+            emitterData.alphaTo = Math.random() * 0.5;
+            emitterData.alphaToDelta = (emitterData.alphaFrom - emitterData.alphaTo) * Math.random();
         }
         else {
-            emitterData.alphaTo = Math.random() * valf;
+            emitterData.alphaFromDelta = (0.5 - emitterData.alphaFrom) * Math.random();
+            valf = emitterData.alphaFrom + emitterData.alphaFromDelta;
+            emitterData.alphaTo =  valf + (1 - valf) * Math.random();
+            emitterData.alphaToDelta = (1 - emitterData.alphaTo) * Math.random();
         }
-        emitterData.alphaToDelta = Math.random() * (Math.min(1 - emitterData.alphaTo, emitterData.alphaTo));
-        emitterData.alphaAnimator = new AnimatorLinear();
+        emitterData.alphaAnimator = randomAnimator();
 
         emitterData.scaleFrom = Math.random() * 1;
-        emitterData.scaleFromDelta = Math.random() * (Math.min(1 - emitterData.scaleFrom, emitterData.scaleFrom));
-        valf = emitterData.scaleFrom + emitterData.scaleFromDelta;
-        if(Math.random() > 0.5) {
-            emitterData.scaleTo = Math.random() * (1 - valf) + valf;
+        if(emitterData.scaleFrom >= 0.5) {
+            emitterData.scaleFromDelta = (1 - emitterData.scaleFrom) * Math.random();
+            emitterData.scaleTo = Math.random() * 0.5;
+            emitterData.scaleToDelta = (emitterData.scaleFrom - emitterData.scaleTo) * Math.random();
         }
         else {
-            emitterData.scaleTo = Math.random() * valf;
+            emitterData.scaleFromDelta = (0.5 - emitterData.scaleFrom) * Math.random();
+            valf = emitterData.scaleFrom + emitterData.scaleFromDelta;
+            emitterData.scaleTo =  valf + (1 - valf) * Math.random();
+            emitterData.scaleToDelta = (1 - emitterData.scaleTo) * Math.random();
         }
-        emitterData.scaleToDelta = Math.random() * (Math.min(1 - emitterData.scaleTo, emitterData.scaleTo));
-        emitterData.scaleAnimator = new AnimatorLinear();
+        emitterData.scaleAnimator = randomAnimator();
         emitterData.scaleSimple = true;
 
         emitterData.velocityFrom = Math.random() * 100;
@@ -67,9 +75,12 @@ class HiveEmitterNode extends HiveNode {
             emitterData.velocityTo = Math.random() * valf;
         }
         emitterData.velocityToDelta = Math.random() * (Math.min(100 - emitterData.velocityTo, emitterData.velocityTo));
-        emitterData.velocityAnimator = new AnimatorLinear();
+        emitterData.velocityAnimator = randomAnimator();
 
         emitterData.area = switch(Math.floor(Math.random() * 5)) {
+            case 0:
+                trace("point");
+                new PointArea();
             case 1:
                 trace("arc");
                 valf = Math.random() * 360;
@@ -89,6 +100,7 @@ class HiveEmitterNode extends HiveNode {
         emitter = new HiveEmitter(null/*new HiveParticleView(20)*/);
         emitter.pool = null;
         emitter.pool = randomPool(false);
+        emitter.force = new ForceGravity(Math.random() * 2 - 1.0);
         emitter.data = emitterData;
         emitter.spawnInterval = 100;
         emitter.enable = true;
@@ -104,5 +116,22 @@ class HiveEmitterNode extends HiveNode {
         p.maxLength = 50;
 
         return p;
+    }
+
+    function randomAnimator():IAnimator {
+        return switch(Math.floor(Math.random() * 4)) {
+            case 0:
+                trace('in');
+                new AnimatorIn();
+            case 1:
+                trace('linear');
+                new AnimatorLinear();
+            case 2:
+                trace('out');
+                new AnimatorOut();
+            default:
+                trace('linear');
+                new AnimatorLinear();
+        }
     }
 }
