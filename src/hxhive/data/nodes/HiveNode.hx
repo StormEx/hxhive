@@ -57,6 +57,10 @@ class HiveNode implements IDisposable {
 		addNode(new HiveEmitterNode());
 	}
 
+	public function addForce() {
+		addNode(new HiveForceNode());
+	}
+
 	public function addNode(node:HiveNode) {
 		addChild(node);
 	}
@@ -88,6 +92,10 @@ class HiveNode implements IDisposable {
 
 	public function isEmitter():Bool {
 		return type == HiveNodeType.EMITTER;
+	}
+
+	public function isForces():Bool {
+		return type == HiveNodeType.FORCE_SET;
 	}
 
 	function onNodeChanged() {

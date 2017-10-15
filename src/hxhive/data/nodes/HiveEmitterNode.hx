@@ -21,7 +21,7 @@ class HiveEmitterNode extends HiveNode {
 
 		emitterData = new EmitterData();
 		addChild(new HiveSpriteSetNode());
-		addChild(new HiveForcesNode());
+		addChild(new HiveForceSetNode());
 		random();
 	}
 
