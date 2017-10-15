@@ -1,5 +1,6 @@
 package hxhive.data.nodes;
 
+import hxhive.data.nodes.HiveForceSetNode;
 import hxfireflies.animators.AnimatorOut;
 import hxfireflies.animators.AnimatorIn;
 import hxfireflies.animators.IAnimator;
@@ -15,13 +16,15 @@ class HiveEmitterNode extends HiveNode {
 	public var emitterData(default, null):EmitterData;
 
 	var _areaNode:HiveAreaNode;
+	var _forceNode:HiveForceSetNode;
 
 	public function new() {
 		super("emitter", "", HiveNodeType.EMITTER);
 
 		emitterData = new EmitterData();
 		addChild(new HiveSpriteSetNode());
-		addChild(new HiveForceSetNode());
+		_forceNode = new HiveForceSetNode();
+		addNode(_forceNode, onForcesChanged);
 		random();
 	}
 
@@ -86,13 +89,13 @@ class HiveEmitterNode extends HiveNode {
 		_emitter.y = 300;
 		_emitter.data.area.y = 400;
 		_emitter.data.area.x = 400;
+		_emitter.force = _forceNode.force;
 	}
 
 	function randomAreaNode() {
 		children.remove(_areaNode);
 		_areaNode = HiveAreaNode.createRandom();
-		_areaNode.changed.add(onAreaNodeChanged);
-		addChild(_areaNode);
+		addNode(_areaNode, onAreaNodeChanged);
 	}
 
 	function randomPool(alt:Bool):IPool {
@@ -126,6 +129,12 @@ class HiveEmitterNode extends HiveNode {
 
 	function onAreaNodeChanged(_) {
 		_emitter.data.area = _areaNode.area;
-		onNodeChanged();
+		performChange();
+	}
+
+	function onForcesChanged(node:HiveNode) {
+		var fn:HiveForceSetNode = Std.instance(node, HiveForceSetNode);
+		if(fn != null) {
+		}
 	}
 }

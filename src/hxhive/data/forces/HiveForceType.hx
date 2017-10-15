@@ -1,6 +1,6 @@
 package hxhive.data.forces;
 
-@:enum abstract HiveForceType(Int) {
+@:enum abstract HiveForceType(Int) from Int to Int {
 	var GRAVITY       = 0;
 
 	public static function random():HiveForceType {

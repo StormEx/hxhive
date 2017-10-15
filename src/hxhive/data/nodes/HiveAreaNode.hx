@@ -85,7 +85,7 @@ class HiveAreaNode extends HiveNode {
 	function set_area(value:IArea):IArea {
 		if(value != null && area != value) {
 			area = value;
-			onNodeChanged();
+			performChange();
 		}
 
 		return area;

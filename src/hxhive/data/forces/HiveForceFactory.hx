@@ -22,7 +22,7 @@ class HiveForceFactory {
 		}
 	}
 
-	function createGravity():IForce {
+	static function createGravity():IForce {
 		var res:IForce = new ForceGravity();
 
 		return res;

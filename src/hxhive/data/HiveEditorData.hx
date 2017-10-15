@@ -18,7 +18,15 @@ class HiveEditorData {
 	public function reset() {
 		treeData = [];
 		var root:HiveNode = new HiveNode();
-		root.title = "particle system";
+		root.title = "particles";
+		root.description = "root";
+		treeData.push(root);
+		root = new HiveNode();
+		root.title = "forces";
+		root.description = "root";
+		treeData.push(root);
+		root = new HiveNode();
+		root.title = "images";
 		root.description = "root";
 		treeData.push(root);
 		selectNode(treeData[0], true);

@@ -58,10 +58,13 @@ class HiveNode implements IDisposable {
 	}
 
 	public function addForce() {
-		addNode(new HiveForceNode());
+		var f:HiveForceNode = new HiveForceNode();
+		addNode(f, onForceAdded);
+		onForceAdded(f);
 	}
 
-	public function addNode(node:HiveNode) {
+	public function addNode(node:HiveNode, callback:HiveNode->Void = null) {
+		node.changed.add(callback == null ? onNodeChanged : callback);
 		addChild(node);
 	}
 
@@ -82,6 +85,10 @@ class HiveNode implements IDisposable {
 		return null;
 	}
 
+	public function getForceNode():HiveForceNode {
+		return null;
+	}
+
 	public function hasEmittingAreaNode():Bool {
 		return getAreaNode() != null;
 	}
@@ -94,11 +101,23 @@ class HiveNode implements IDisposable {
 		return type == HiveNodeType.EMITTER;
 	}
 
-	public function isForces():Bool {
+	public function isForceSet():Bool {
 		return type == HiveNodeType.FORCE_SET;
 	}
 
-	function onNodeChanged() {
+	public function isForce():Bool {
+		return type == HiveNodeType.FORCE;
+	}
+
+	function performChange() {
 		changed.emit(this);
+	}
+
+	function onNodeChanged(node:HiveNode) {
+
+	}
+
+	function onForceAdded(node:HiveNode) {
+
 	}
 }
