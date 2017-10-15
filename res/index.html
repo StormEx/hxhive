@@ -21,7 +21,7 @@
     <script src="hxhive.js"></script>
     <link rel="stylesheet" href="css/hxhive.css">
 </head>
-<body ng-app="pseditor" ng-controller="PsEditorController">
+<body ng-app="pseditor" ng-controller="HiveEditorController">
 <div id="toolbar" class="btn-toolbar tson-toolbar" role="toolbar">
     <div class="content-toolbar">
         <button class="btn btn-xs btn-info" title="New particles system" ng-click="newPsSystem()">
@@ -60,9 +60,13 @@
                             title="Add particle emitter" data-placement="bottom">
                         <span class="glyphicon glyphicon-plus"></span>
                     </button>
-                    <button type="button" class="btn btn-xs btn-default tson-tree-node-action" ng-click="psData.deleteNode(node)"
+                    <button type="button" class="btn btn-xs btn-default tson-tree-node-action" ng-click="psData.deleteNode(node)" ng-if="node.isDeletable"
                             title="Delete node" data-placement="bottom">
                         <span class="glyphicon glyphicon-remove"></span>
+                    </button>
+                    <button type="button" class="btn btn-xs btn-default tson-tree-node-action" ng-click="node.random()" ng-if="node.isEmitter()"
+                            title="Randomize" data-placement="bottom">
+                        <span class="glyphicon glyphicon-random"></span>
                     </button>
                 </treecontrol>
             </div>
@@ -71,65 +75,192 @@
 </div>
 <div class="content-column-holder resizable-column">
     <div id="psview" class="psview" ng-if="true">
-        <canvas id="pscanvas" class="pscanvas" width="600px" height="600px"></canvas>
+        <canvas id="pscanvas" class="pscanvas" width="800px" height="800px" style="background-color: #cccccc"></canvas>
     </div>
 </div>
 <div class="content-column-holder resizable-column">
-    <div id="tsonproperty" class="tsonproperty" ng-if="true">
-        <span>properties should be here</span>
-        <div class="panel panel-success tson-property-group" ng-repeat="grp in psData.getGroups()" ng-if="grp.isEmpty() == false">
-            <div class="panel-heading tson-property-group-header">
-                {{grp.name}} <span class="tree-node-label-muted">{{grp.getDescription()}}</span>
+    <div id="tsonproperty" class="tsonproperty" ng-if="psData.selectedNode != null" ng-controller="HivePropertiesController">
+        <div class="panel-heading tson-property-group-header">
+            <div class="panel panel-warning" ng-if="emitter.isActive()">
+                <div class="panel-heading"><h3 class="panel-title">Emitter properties</h3></div>
+                <div class="panel-body">
+                    <div class="input-group input-group-xs">
+                        <span class="input-group-addon">spawn count</span>
+                        <input type="number" min="0" max="1000" step="1" class="form-control"
+                               ng-model="emitter.spawnCount" ng-change="emitter.update()">
+                        <span class="input-group-addon">interval</span>
+                        <input type="number" min="0" max="1000" step="0.1" class="form-control"
+                               ng-model="emitter.spawnInterval" ng-change="emitter.update()">
+                    </div>
+                </div>
             </div>
-            <div class="panel-body tson-property-group-body">
-                <div class="input-group input-group-sm tson-property" ng-repeat="prop in grp.properties">
-                    <div class="input-group tson-property" ng-if="prop.dataType == 'string'">
-                        <span class="input-group-addon tson-property-label">{{prop.name}}</span>
-                        <input type="text" class="form-control"
-                               ng-readonly="prop.readOnly"
-                               ng-model="prop.info"
-                               ng-change="prop.update()"
-                        >
+            <div class="panel panel-warning" ng-if="emitter.isActive()">
+                <div class="panel-heading"><h3 class="panel-title">Particle properties</h3></div>
+                <div class="panel-body">
+                    <div class="input-group input-group-xs">
+                        <span class="input-group-addon">lifeTime</span>
+                        <input type="number" min="0" max="1000" step="0.1" class="form-control"
+                               ng-model="emitter.lifeTime" ng-change="emitter.update()" ng-disabled="emitter.lifeTimeEndless">
+                        <span class="input-group-addon">delta</span>
+                        <input type="number" min="0" max="1000" step="0.1" class="form-control"
+                               ng-model="emitter.lifeTimeDelta" ng-change="emitter.update()" ng-disabled="emitter.lifeTimeEndless">
                     </div>
-                    <div class="input-group tson-property" ng-if="prop.dataType == 'number'">
-                        <span class="input-group-addon tson-property-label">{{prop.name}}</span>
-                        <input type="number" class="form-control"
-                               ng-readonly="prop.readOnly"
-                               ng-model="prop.number"
-                               ng-change="prop.update()"
-                        >
+                    <span class="tson-property-label">alpha</span>
+                    <div class="input-group input-group-xs">
+                        <span class="input-group-addon">from</span>
+                        <input type="number" min="0" max="1" step="0.1" class="form-control"
+                               ng-model="emitter.alphaFrom" ng-change="emitter.update()">
+                        <span class="input-group-addon">delta</span>
+                        <input type="number" min="0" max="1" step="0.1" class="form-control"
+                               ng-model="emitter.alphaFromDelta" ng-change="emitter.update()">
                     </div>
-                    <div class="input-group tson-property" ng-if="prop.dataType == 'binary'">
-                        <span class="input-group-addon tson-property-label">{{prop.name}}</span>
-                        <input type="text" class="form-control"
-                               ng-readonly="true"
-                               ng-model="prop.info"
-                               ng-change="prop.update()"
-                        >
+                    <div class="input-group input-group-xs" ng-if="emitter.alphaEasing != 'none'">
+                        <span class="input-group-addon">to</span>
+                        <input type="number" min="0" max="1" step="0.1" class="form-control"
+                               ng-model="emitter.alphaTo" ng-change="emitter.update()">
+                        <span class="input-group-addon">delta</span>
+                        <input type="number" min="0" max="1" step="0.1" class="form-control"
+                               ng-model="emitter.alphaToDelta" ng-change="emitter.update()">
+                    </div>
+                    <div class="input-group input-group-xs">
+                        <span class="input-group-addon">easing type</span>
                         <div class="input-group-btn">
-                            <button type="button" class="btn btn-default" ng-click="prop.loadFile()">
-                                ...
-                            </button>
-                        </div>
-                    </div>
-                    <div class="input-group tson-property" ng-if="prop.dataType == 'options'">
-                        <span class="input-group-addon tson-property-label">{{prop.name}}</span>
-                        <span class="input-group-addon tson-property">{{prop.info}}</span>
-                        <div class="input-group-btn property-group" ng-hide="prop.readOnly">
-                            <button type="button"
-                                    class="btn btn-default dropdown-toggle tson-property"
-                                    ng-disabled="prop.readOnly"
-                                    data-toggle="dropdown"
-                                    aria-haspopup="true"
-                                    aria-expanded="false">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {{emitter.alphaEasing}}
                                 <span class="caret"></span>
                             </button>
-                            <ul class="dropdown-menu  dropdown-menu-right">
-                                <li ng-repeat="option in prop.options" ng-click="prop.changeOption(option)">
-                                    <a href="#">{{option}}</a>
-                                </li>
+                            <ul class="dropdown-menu">
+                                <li ng-repeat="p in emitter.easingTypes"><a ng-click="emitter.changeAlphaEasing(p)">{{p}}</a></li>
                             </ul>
                         </div>
+                    </div>
+                    <span class="tson-property-label">velocity</span>
+                    <div class="input-group input-group-xs">
+                        <span class="input-group-addon">from</span>
+                        <input type="number" min="0" max="1000" step="0.1" class="form-control"
+                               ng-model="emitter.velocityFrom" ng-change="emitter.update()">
+                        <span class="input-group-addon">delta</span>
+                        <input type="number" min="0" max="1000" step="0.1" class="form-control"
+                               ng-model="emitter.velocityFromDelta" ng-change="emitter.update()">
+                    </div>
+                    <div class="input-group input-group-xs" ng-if="emitter.velocityEasing != 'none'">
+                        <span class="input-group-addon">to</span>
+                        <input type="number" min="0" max="1000" step="0.1" class="form-control"
+                               ng-model="emitter.velocityTo" ng-change="emitter.update()">
+                        <span class="input-group-addon">delta</span>
+                        <input type="number" min="0" max="1000" step="0.1" class="form-control"
+                               ng-model="emitter.velocityToDelta" ng-change="emitter.update()">
+                    </div>
+                    <div class="input-group input-group-xs">
+                        <span class="input-group-addon">easing type</span>
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {{emitter.velocityEasing}}
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li ng-repeat="p in emitter.easingTypes"><a ng-click="emitter.changeVelocityEasing(p)">{{p}}</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <span class="tson-property-label">scale</span>
+                    <div class="input-group input-group-xs">
+                        <span class="input-group-addon">from</span>
+                        <input type="number" min="0" max="1000" step="0.1" class="form-control"
+                               ng-model="emitter.scaleFrom" ng-change="emitter.update()">
+                        <span class="input-group-addon">delta</span>
+                        <input type="number" min="0" max="1000" step="0.1" class="form-control"
+                               ng-model="emitter.scaleFromDelta" ng-change="emitter.update()">
+                    </div>
+                    <div class="input-group input-group-xs" ng-if="emitter.scaleEasing != 'none'">
+                        <span class="input-group-addon">to</span>
+                        <input type="number" min="0" max="1000" step="0.1" class="form-control"
+                               ng-model="emitter.scaleTo" ng-change="emitter.update()">
+                        <span class="input-group-addon">delta</span>
+                        <input type="number" min="0" max="1000" step="0.1" class="form-control"
+                               ng-model="emitter.scaleToDelta" ng-change="emitter.update()">
+                    </div>
+                    <div class="input-group input-group-xs">
+                        <span class="input-group-addon">easing type</span>
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {{emitter.scaleEasing}}
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li ng-repeat="p in emitter.easingTypes"><a ng-click="emitter.changeScaleEasing(p)">{{p}}</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <span class="tson-property-label">spin</span>
+                    <div class="input-group input-group-xs">
+                        <span class="input-group-addon">from</span>
+                        <input type="number" min="-10000" max="10000" step="0.1" class="form-control"
+                               ng-model="emitter.spinFrom" ng-change="emitter.update()">
+                        <span class="input-group-addon">delta</span>
+                        <input type="number" min="-10000" max="10000" step="0.1" class="form-control"
+                               ng-model="emitter.spinFromDelta" ng-change="emitter.update()">
+                    </div>
+                    <div class="input-group input-group-xs" ng-if="emitter.spinEasing != 'none'">
+                        <span class="input-group-addon">to</span>
+                        <input type="number" min="-10000" max="10000" step="1" class="form-control"
+                               ng-model="emitter.spinTo" ng-change="emitter.update()">
+                        <span class="input-group-addon">delta</span>
+                        <input type="number" min="-10000" max="10000" step="1" class="form-control"
+                               ng-model="emitter.spinToDelta" ng-change="emitter.update()">
+                    </div>
+                    <div class="input-group input-group-xs">
+                        <span class="input-group-addon">easing type</span>
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {{emitter.spinEasing}}
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li ng-repeat="p in emitter.easingTypes"><a ng-click="emitter.changeSpinEasing(p)">{{p}}</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-warning" ng-if="area.isActive()">
+                <div class="panel-heading"><h3 class="panel-title">Emitting area properties</h3></div>
+                <div class="panel-body">
+                    <div class="input-group input-group-xs">
+                        <span class="input-group-addon">area type</span>
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {{area.areaTypeName}}
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li ng-repeat="p in area.areaTypes"><a ng-click="area.changeAreaType(p)">{{p}}</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="input-group input-group-xs" ng-if="area.areaTypeName == 'circle'">
+                        <span class="input-group-addon">radius</span>
+                        <input type="number" min="1" max="1000" step="1" class="form-control" ng-model="area.one" ng-change="area.update()">
+                    </div>
+                    <div class="input-group input-group-xs" ng-if="area.areaTypeName == 'ring'">
+                        <span class="input-group-addon">min</span>
+                        <input type="number" min="1" max="1000" step="1" class="form-control" ng-model="area.one" ng-change="area.update()">
+                        <span class="input-group-addon">max</span>
+                        <input type="number" min="1" max="1000" step="1" class="form-control" ng-model="area.two" ng-change="area.update()">
+                    </div>
+                    <div class="input-group input-group-xs" ng-if="area.areaTypeName == 'rectangle'">
+                        <span class="input-group-addon">width</span>
+                        <input type="number" min="1" max="1000" step="1" class="form-control" ng-model="area.one" ng-change="area.update()">
+                        <span class="input-group-addon">height</span>
+                        <input type="number" min="1" max="1000" step="1" class="form-control" ng-model="area.two" ng-change="area.update()">
+                    </div>
+                    <div class="input-group input-group-xs" ng-if="area.areaTypeName == 'arc'">
+                        <span class="input-group-addon">radius</span>
+                        <input type="number" min="1" max="1000" step="1" class="form-control" ng-model="area.one" ng-change="area.update()">
+                        <span class="input-group-addon">from</span>
+                        <input type="number" min="0" max="360" step="1" class="form-control" ng-model="area.two" ng-change="area.update()">
+                        <span class="input-group-addon">to</span>
+                        <input type="number" min="0" max="360" step="1" class="form-control" ng-model="area.three" ng-change="area.update()">
                     </div>
                 </div>
             </div>
