@@ -1,11 +1,11 @@
 package hxhive.controllers;
 
-import hxhive.controllers.properties.HiveEmitterProperties;
+import hxhive.data.properties.HiveEmitterProperties;
 import hxhive.data.nodes.HiveEmitterNode;
 import hxhive.data.nodes.HiveAreaNode;
 import hxhive.data.nodes.HiveNode;
 import hxhive.data.HiveModel;
-import hxhive.controllers.properties.HiveAreaProperties;
+import hxhive.data.properties.HiveAreaProperties;
 import hxhive.view.HiveMainView;
 import angular.service.Scope;
 

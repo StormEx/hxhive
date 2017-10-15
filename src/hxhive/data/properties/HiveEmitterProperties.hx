@@ -1,5 +1,6 @@
-package hxhive.controllers.properties;
+package hxhive.data.properties;
 
+import hxhive.data.animators.HiveAnimatorNames;
 import hxfireflies.animators.AnimatorIn;
 import hxfireflies.animators.AnimatorOut;
 import hxfireflies.animators.AnimatorLinear;
@@ -28,13 +29,13 @@ class HiveEmitterProperties extends HiveProperties {
 	public var alphaFromDelta:Float = 0;
 	public var alphaTo:Float = 0;
 	public var alphaToDelta:Float = 0;
-	public var alphaEasing:String = "linear";
+	public var alphaEasing:String = HiveAnimatorNames.LINEAR;
 
 	public var velocityFrom:Float = 0;
 	public var velocityFromDelta:Float = 0;
 	public var velocityTo:Float = 0;
 	public var velocityToDelta:Float = 0;
-	public var velocityEasing:String = "linear";
+	public var velocityEasing:String = HiveAnimatorNames.LINEAR;
 
 	public var monoScale:Bool = true;
 
@@ -42,19 +43,19 @@ class HiveEmitterProperties extends HiveProperties {
 	public var scaleFromDelta:Float = 0;
 	public var scaleTo:Float = 0;
 	public var scaleToDelta:Float = 0;
-	public var scaleEasing:String = "linear";
+	public var scaleEasing:String = HiveAnimatorNames.LINEAR;
 
 	public var scaleYFrom:Float = 0;
 	public var scaleYFromDelta:Float = 0;
 	public var scaleYTo:Float = 0;
 	public var scaleYToDelta:Float = 0;
-	public var scaleYEasing:String = "linear";
+	public var scaleYEasing:String = HiveAnimatorNames.LINEAR;
 
 	public var spinFrom:Float = 0;
 	public var spinFromDelta:Float = 0;
 	public var spinTo:Float = 0;
 	public var spinToDelta:Float = 0;
-	public var spinEasing:String = "linear";
+	public var spinEasing:String = HiveAnimatorNames.LINEAR;
 
 	public function new(scope:Scope) {
 		super(scope);
@@ -100,11 +101,11 @@ class HiveEmitterProperties extends HiveProperties {
 
 	function createAnimator(value:String):IAnimator {
 		return switch(value) {
-			case "in":
+			case HiveAnimatorNames.IN:
 				new AnimatorIn();
-			case "out":
+			case HiveAnimatorNames.OUT:
 				new AnimatorOut();
-			case "linear":
+			case HiveAnimatorNames.LINEAR:
 				new AnimatorLinear();
 			default:
 				null;
@@ -142,20 +143,19 @@ class HiveEmitterProperties extends HiveProperties {
 
 	function getAnimatorType(value:IAnimator):String {
 		if(Std.instance(value, AnimatorLinear) != null) {
-			return "linear";
+			return HiveAnimatorNames.LINEAR;
 		}
 		if(Std.instance(value, AnimatorOut) != null) {
-			return "out";
+			return HiveAnimatorNames.OUT;
 		}
 		if(Std.instance(value, AnimatorIn) != null) {
-			return "in";
+			return HiveAnimatorNames.IN;
 		}
 
-		return "none";
+		return HiveAnimatorNames.NONE;
 	}
 
 	function set_emitter(value:HiveEmitterNode):HiveEmitterNode {
-		trace('emitter set');
 		this.emitter = value;
 		if(value != null) {
 			spawnCount = emitter.getEmitter().spawnCount;

@@ -1,5 +1,6 @@
 package hxhive.data.nodes;
 
+import hxhive.data.areas.HiveAreaType;
 import hxfireflies.area.PointArea;
 import hxfireflies.area.RectangleArea;
 import hxfireflies.area.CircleArea;
@@ -69,18 +70,7 @@ class HiveAreaNode extends HiveNode {
 	}
 
 	function getTitle(type:HiveAreaType) {
-		return switch(type) {
-			case HiveAreaType.RECTANGLE:
-				"rectangle";
-			case HiveAreaType.CIRCLE:
-				"circle";
-			case HiveAreaType.RING:
-				"ring";
-			case HiveAreaType.ARC:
-				"arc";
-			default:
-				"point";
-		}
+		return type.toString();
 	}
 
 	function set_areaType(value:HiveAreaType):HiveAreaType {

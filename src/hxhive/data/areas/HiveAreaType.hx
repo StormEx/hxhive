@@ -1,4 +1,4 @@
-package hxhive.data;
+package hxhive.data.areas;
 
 @:enum abstract HiveAreaType(Int) from Int to Int {
 	var POINT       = 0;
@@ -13,13 +13,13 @@ package hxhive.data;
 
 	static public function fromString(value:String):HiveAreaType {
 		return switch(value) {
-			case "rectangle":
+			case HiveAreaNames.RECTANGLE:
 				HiveAreaType.RECTANGLE;
-			case "circle":
+			case HiveAreaNames.CIRCLE:
 				HiveAreaType.CIRCLE;
-			case "ring":
+			case HiveAreaNames.RING:
 				HiveAreaType.RING;
-			case "arc":
+			case HiveAreaNames.ARC:
 				HiveAreaType.ARC;
 			default:
 				HiveAreaType.POINT;
@@ -27,20 +27,19 @@ package hxhive.data;
 	}
 
 	public function toString():String {
-		trace('to string');
 		return switch(this) {
 			case POINT:
-				"point";
+				HiveAreaNames.POINT;
 			case RECTANGLE:
-				"rectangle";
+				HiveAreaNames.RECTANGLE;
 			case CIRCLE:
-				"circle";
+				HiveAreaNames.CIRCLE;
 			case RING:
-				"ring";
+				HiveAreaNames.RING;
 			case ARC:
-				"arc";
+				HiveAreaNames.ARC;
 			default:
-				"point";
+				HiveAreaNames.POINT;
 		}
 	}
 }

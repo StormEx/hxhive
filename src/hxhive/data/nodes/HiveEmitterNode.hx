@@ -1,10 +1,8 @@
 package hxhive.data.nodes;
 
-import hxfireflies.area.IArea;
 import hxfireflies.animators.AnimatorOut;
 import hxfireflies.animators.AnimatorIn;
 import hxfireflies.animators.IAnimator;
-import hxfireflies.forces.ForceGravity;
 import hxfireflies.animators.AnimatorLinear;
 import hxfireflies.pool.IPool;
 import hxfireflies.particle.Particle;
@@ -23,6 +21,7 @@ class HiveEmitterNode extends HiveNode {
 
 		emitterData = new EmitterData();
 		addChild(new HiveSpriteSetNode());
+		addChild(new HiveForcesNode());
 		random();
 	}
 

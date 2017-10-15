@@ -1,4 +1,4 @@
-package hxhive.controllers.properties;
+package hxhive.data.properties;
 
 import angular.service.Scope;
 

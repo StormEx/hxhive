@@ -1,11 +1,11 @@
-package hxhive.controllers.properties;
+package hxhive.data.properties;
 
-import hxfireflies.area.IArea;
+import hxhive.data.areas.HiveAreaNames;
+import hxhive.data.areas.HiveAreaType;
 import hxfireflies.area.ArcArea;
 import hxfireflies.area.RingArea;
 import hxfireflies.area.CircleArea;
 import hxfireflies.area.RectangleArea;
-import hxhive.data.HiveAreaType;
 import hxhive.data.nodes.HiveAreaNode;
 import angular.service.Scope;
 
@@ -83,7 +83,7 @@ class HiveAreaProperties extends HiveProperties {
 	}
 
 	function getAreaType():String {
-		return isActive() ? area.areaType.toString() : "point";
+		return isActive() ? area.areaType.toString() : HiveAreaNames.POINT;
 	}
 
 	override public function isActive():Bool {
