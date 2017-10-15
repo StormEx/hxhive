@@ -9,9 +9,11 @@ class HxHiveMake extends hxmake.Module {
 	function new() {
 		config.classPath = ["src"];
 		config.testPath = ["test"];
-		config.devDependencies = [
+		config.dependencies = [
 			"hxdispose" => "haxelib",
-			"hxfireflies" => "haxelib"
+			"hxfireflies" => "haxelib",
+			"hxphoton" => "haxelib",
+			"angular.haxe" => "haxelib"
 		];
 
 		apply(HaxelibPlugin);

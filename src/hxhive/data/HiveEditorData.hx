@@ -7,11 +7,11 @@ class HiveEditorData {
 	public var treeData:Array<HiveNode> = [];
 	public var selectedNode:HiveNode = null;
 
-	var _changedCallback:Void->Void = null;
+	var _changedCallback:Void -> Void = null;
 
 	var _isLoaded:Bool = true;
 
-	public function new(changed:Void->Void) {
+	public function new(changed:Void -> Void) {
 		_changedCallback = changed;
 	}
 

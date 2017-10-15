@@ -7,6 +7,7 @@
 -lib hxnodejs
 -lib angular.haxe
 -lib hxdispose
+-lib hxphoton
 -lib hxfireflies
 
 -cp src
@@ -23,6 +24,7 @@
 -lib angular.haxe
 -lib hxdispose
 -lib hxfireflies
+-lib hxphoton
 
 -cp src
 

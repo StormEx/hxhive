@@ -14,6 +14,10 @@ class HiveMainView {
 	var _time:Float = 0;
 
 	public function new() {
+		Browser.window.addEventListener("load", onWindowLoaded);
+	}
+
+	public function init() {
 		if(ctx == null) {
 			_canvas = cast Browser.document.getElementById("pscanvas");
 			if(_canvas != null) {
@@ -30,13 +34,17 @@ class HiveMainView {
 	public function dispose() {
 	}
 
-    function loop(dt) {
+	function loop(dt) {
 		if(emitter != null) {
 			emitter.update(dt);
 		}
-    }
+	}
 
 	public function render() {
+		if(_canvas == null) {
+			return;
+		}
+
 		var cur:Float = Date.now().getTime();
 		var dt:Int = Std.int(cur - _time);
 
@@ -46,6 +54,13 @@ class HiveMainView {
 		}
 
 		_time = cur;
+	}
+
+	function onWindowLoaded() {
+//		_psView.emitter = _eEmitter;
+		init();
+
+		Browser.window.removeEventListener("load", onWindowLoaded);
 	}
 
 	function set_emitter(value:IEmitter):IEmitter {

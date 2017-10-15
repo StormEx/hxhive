@@ -1,5 +1,6 @@
 package hxhive.controllers;
 
+import hxhive.data.HiveModel;
 import hxfireflies.emitter.IEmitter;
 import hxfireflies.forces.ForceCollection;
 import hxhive.view.HiveMainView;
@@ -8,43 +9,44 @@ import hxhive.data.HiveEditorData;
 import angular.service.Scope;
 
 class HiveEditorController {
-    var _scope:Scope;
-    var _data:HiveEditorData = null;
-    var _fileName:String = "";
-    var _psView:HiveMainView = null;
+	var _scope:Scope;
+	var _data:HiveEditorData = null;
+	var _model:HiveModel = null;
+	var _fileName:String = "";
+	var _psView:HiveMainView = null;
 
-    var _emitter:IEmitter;
-    var _rEmitter:IEmitter;
-    var _eEmitter:IEmitter;
-    var _force:ForceCollection;
+	var _emitter:IEmitter;
+	var _rEmitter:IEmitter;
+	var _eEmitter:IEmitter;
+	var _force:ForceCollection;
 
-    public function new(scope:Scope) {
-        _data = new HiveEditorData(onDataChanged);
+	public function new(scope:Scope, view:HiveMainView, model:HiveModel) {
+		_psView = view;
+		_data = new HiveEditorData(onDataChanged);
+		_model = model;
 
-        _scope = scope;
+		_scope = scope;
 
-        _scope.set("psData", _data);
-        _scope.set("treeOptions", {
-            nodeChildren: "children"
-        });
-        _scope.set("newPsSystem", newPsSystem);
-        _scope.set("loadPsSystem", loadPsSystem);
-        _scope.set("savePsSystem", savePsSystem);
+		_scope.set("psData", _data);
+		_scope.set("treeOptions", {
+			nodeChildren: "children"
+		});
+		_scope.set("newPsSystem", newPsSystem);
+		_scope.set("loadPsSystem", loadPsSystem);
+		_scope.set("savePsSystem", savePsSystem);
 
-        newPsSystem();
+		newPsSystem();
 
-        Browser.window.requestAnimationFrame(onFrame);
+		Browser.window.requestAnimationFrame(onFrame);
+	}
 
-        Browser.window.addEventListener("load", onWindowLoaded);
-    }
+	function newPsSystem() {
+		trace("new system");
+		_data.reset();
+	}
 
-    function newPsSystem() {
-        trace("new system");
-        _data.reset();
-    }
-
-    function loadPsSystem() {
-        trace("load system");
+	function loadPsSystem() {
+		trace("load system");
 //        var dialog:InputElement = Browser.document.createInputElement();
 //        dialog.type = 'file';
 //        dialog.multiple = false;
@@ -62,10 +64,10 @@ class HiveEditorController {
 //            });
 //        });
 //        q.click();
-    }
+	}
 
-    function savePsSystem() {
-        trace("save system");
+	function savePsSystem() {
+		trace("save system");
 //#if nodejs
 //		var dialog:InputElement = Browser.document.createInputElement();
 //		dialog.type = 'file';
@@ -98,19 +100,19 @@ class HiveEditorController {
 //        elem.download = "temp.tson";
 //        elem.click();
 //#end
-    }
+	}
 
-    function applyTreeData() {
-            _scope.safeApply(function() {
-                _scope.set("psData", _data);
-            });
-    }
+	function applyTreeData() {
+		_scope.safeApply(function() {
+			_scope.set("psData", _data);
+		});
+	}
 
-    function onFileWriteFinished(e:Dynamic) {
+	function onFileWriteFinished(e:Dynamic) {
 //        Debug.trace("file saved successfully...");
-    }
+	}
 
-    function onTsonLoaded(/*loader:ILoader*/) {
+	function onTsonLoaded(/*loader:ILoader*/) {
 //        if(loader.isSuccess()) {
 //            _tson = loader.content;
 //            _data.tson = TsonDataReader.read(new BytesInput(_tson));
@@ -125,28 +127,36 @@ class HiveEditorController {
 //        _scope.safeApply(function() {
 //            _scope.set("managerData", _data);
 //        });
-    }
+	}
 
-    function onDataChanged() {
-        if(_psView != null && _data.selectedNode != null && _psView.emitter != _data.selectedNode.emitter) {
-            _psView.emitter = _data.selectedNode.emitter;
-        }
-        _scope.safeApply(function() {
-            _scope.set("psData", _data);
-        });
-    }
+	function onDataChanged() {
+		if(_model.node != null) {
+			_model.node.changed.remove(onNodeChanged);
+		}
+		_model.node = _data.selectedNode;
+		if(_model.node != null) {
+			_model.node.changed.add(onNodeChanged);
+		}
 
-    function onFrame(e:Float) {
-        if(_psView != null) {
-            _psView.render();
-        }
-        Browser.window.requestAnimationFrame(onFrame);
-    }
+		if(_psView != null && _data.selectedNode != null && _psView.emitter != _data.selectedNode.getEmitter()) {
+			_psView.emitter = _data.selectedNode.getEmitter();
+		}
+		_scope.safeApply(function() {
+			_scope.set("psData", _data);
+		});
+	}
 
-    function onWindowLoaded() {
-        _psView = new HiveMainView();
-        _psView.emitter = _eEmitter;
+	function onNodeChanged(_) {
+		trace("node changed");
+		_scope.safeApply(function() {
+			_scope.set("psData", _data);
+		});
+	}
 
-        Browser.window.removeEventListener("load", onWindowLoaded);
-    }
+	function onFrame(e:Float) {
+		if(_psView != null) {
+			_psView.render();
+		}
+		Browser.window.requestAnimationFrame(onFrame);
+	}
 }
